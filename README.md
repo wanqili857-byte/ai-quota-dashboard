@@ -1,8 +1,14 @@
 # ai-quota-dashboard
 
-桌面悬浮折叠 AI 额度看板 (Tauri)。实时查看 DeepSeek 余额、OpenCode Go 限额、Token 用量/费用/缓存命中率与趋势, 30s 自动刷新, 点击一键充值。
+桌面悬浮折叠 AI 额度看板 (Tauri). 实时查看 DeepSeek 余额、OpenCode Go 限额、Token 用量/费用/缓存命中率与趋势, 30s 自动刷新, 点击一键充值。
 
 参考小红书「AI 详情」看板设计 (深色主题)。
+
+<p align="center">
+  <img src="screenshot.png" alt="ai-quota-dashboard 截图" width="360">
+</p>
+
+> A floating, collapsible desktop AI-quota dashboard built with Tauri — live DeepSeek balance, OpenCode Go quota, and CC Switch token usage/cache-hit/trend, auto-refresh every 30s. Credentials are read at runtime from `~/.env` / `auth.json`, never committed.
 
 ## 功能
 

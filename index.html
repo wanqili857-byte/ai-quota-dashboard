@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ai-quota-dashboard</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="titlebar" data-tauri-drag-region>
+        <span class="title" data-tauri-drag-region>ai-quota-dashboard</span>
+        <div class="actions">
+          <button id="btn-collapse" title="折叠">—</button>
+          <button id="btn-pin" title="吸顶">⤒</button>
+          <button id="btn-quit" title="退出">×</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- ── DeepSeek 余额 ── -->
+        <section class="card" id="card-ds">
+          <div class="card-head">
+            <span class="dot dot-blue"></span>
+            <span class="card-title">DeepSeek</span>
+            <div class="card-head-right">
+              <span class="tag">人民币余额</span>
+              <button class="btn-topup" id="btn-ds-topup">充值</button>
+              <button class="collapse-btn" data-collapse title="折叠">▾</button>
+            </div>
+          </div>
+          <div class="big-balance" id="ds-balance">--</div>
+        </section>
+
+        <!-- ── OpenCode Go 限额 ── -->
+        <section class="card" id="card-oc">
+          <div class="card-head">
+            <span class="dot dot-green"></span>
+            <span class="card-title">OpenCode Go</span>
+            <div class="card-head-right">
+              <span class="tag">限额用量</span>
+              <button class="collapse-btn" data-collapse title="折叠">▾</button>
+            </div>
+          </div>
+          <div class="oc-windows">
+            <div class="oc-window" data-window="rolling">
+              <div class="oc-track"><div class="oc-fill" id="oc-rolling-fill"></div></div>
+              <div class="oc-percent" id="oc-rolling">--</div>
+              <div class="oc-label">5小时用量</div>
+              <div class="oc-reset" id="oc-rolling-reset"></div>
+            </div>
+            <div class="oc-window" data-window="weekly">
+              <div class="oc-track"><div class="oc-fill" id="oc-weekly-fill"></div></div>
+              <div class="oc-percent" id="oc-weekly">--</div>
+              <div class="oc-label">本周用量</div>
+              <div class="oc-reset" id="oc-weekly-reset"></div>
+            </div>
+            <div class="oc-window" data-window="monthly">
+              <div class="oc-track"><div class="oc-fill" id="oc-monthly-fill"></div></div>
+              <div class="oc-percent" id="oc-monthly">--</div>
+              <div class="oc-label">本月用量</div>
+              <div class="oc-reset" id="oc-monthly-reset"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Token 用量 ── -->
+        <section class="card" id="card-tk">
+          <div class="card-head">
+            <span class="dot dot-purple"></span>
+            <span class="card-title">Token 用量</span>
+            <div class="card-head-right">
+              <span class="tag">CC Switch 计量</span>
+              <button class="collapse-btn" data-collapse title="折叠">▾</button>
+            </div>
+          </div>
+          <div class="token-grid">
+            <div class="token-cell">
+              <div class="tc-label">今日</div>
+              <div class="tc-big" id="tk-today">--</div>
+              <div class="tc-sub" id="tk-today-sub">--</div>
+            </div>
+            <div class="token-cell">
+              <div class="tc-label">近7天</div>
+              <div class="tc-big" id="tk-week">--</div>
+              <div class="tc-sub" id="tk-week-sub">--</div>
+            </div>
+            <div class="token-cell">
+              <div class="tc-label">本月</div>
+              <div class="tc-big" id="tk-month">--</div>
+              <div class="tc-sub" id="tk-month-sub">--</div>
+            </div>
+          </div>
+          <div class="hit-bar">
+            <div class="hit-label">今日缓存命中率 · CC Switch 使用统计口径</div>
+            <div class="hit-big" id="hit-rate">--</div>
+          </div>
+          <div class="provider-row">
+            <span class="dot dot-green"></span><span class="pr-name">OpenCode Go</span>
+            <span class="pr-stats" id="pr-opencode">--</span>
+          </div>
+          <div class="provider-row">
+            <span class="dot dot-blue"></span><span class="pr-name">DeepSeek</span>
+            <span class="pr-stats" id="pr-deepseek">--</span>
+          </div>
+        </section>
+
+        <!-- ── Token 使用趋势 ── -->
+        <section class="card" id="card-trend">
+          <div class="card-head">
+            <span class="dot dot-cyan"></span>
+            <span class="card-title">Token 使用趋势</span>
+            <div class="card-head-right">
+              <span class="tag">按天统计</span>
+              <button class="collapse-btn" data-collapse title="折叠">▾</button>
+            </div>
+          </div>
+          <canvas id="trend" width="320" height="96"></canvas>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

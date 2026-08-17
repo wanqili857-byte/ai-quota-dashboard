@@ -1,0 +1,373 @@
+/* AI 额度看板 — 复刻参考图: 浅蓝页面底色 + 深色近黑卡片, 彩色圆点标题, 强弱分明 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+:root {
+  /* 页面底色 (卡片之间的分隔色, 深蓝灰) */
+  --page-bg: #1d2433;
+  /* 卡片背景 (深色近黑深蓝灰) */
+  --card-bg: #131720;
+  --card-border: rgba(255, 255, 255, 0.07);
+  --text: #eef1f7;
+  --muted: #8b93a7;
+  --faint: #5b6478;
+  /* 服务色 */
+  --blue: #4c8dff;
+  --green: #34d399;
+  --purple: #a78bfa;
+  --cyan: #22d3ee;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--page-bg);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+/* ── 顶栏 (可拖动) ── */
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 7px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.actions button {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.actions button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.actions button.active {
+  background: rgba(76, 141, 255, 0.35);
+  color: #7fb2ff;
+}
+
+/* ── 内容区 ── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.content::-webkit-scrollbar {
+  width: 4px;
+}
+.content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* ── 卡片通用 ── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-head-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* 彩色小圆点 */
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-blue { background: var(--blue); }
+.dot-green { background: var(--green); }
+.dot-purple { background: var(--purple); }
+.dot-cyan { background: var(--cyan); }
+
+/* 右上角标签/按钮 */
+.tag {
+  font-size: 10px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.chevron {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.btn-topup {
+  border: none;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 6px;
+  padding: 2px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-topup:hover {
+  filter: brightness(1.15);
+}
+
+/* 模块右上角折叠按钮 */
+.collapse-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+/* 卡片折叠态: 只留标题行 (!important 压过 #card-trend canvas 的 ID 选择器) */
+.card.collapsed-card > *:not(.card-head) {
+  display: none !important;
+}
+.card.collapsed-card {
+  padding-bottom: 8px;
+}
+
+/* ── DeepSeek 余额 (大数字居中) ── */
+.big-balance {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  padding: 10px 0 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+/* ── OpenCode Go 三列 ── */
+.oc-windows {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.oc-window {
+  flex: 1;
+  text-align: center;
+  padding: 8px 2px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+/* OpenCode 顶部横向进度条 (fill 宽度 = 已用比例, 颜色随用量动态) */
+.oc-track {
+  width: calc(100% - 12px);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.oc-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: var(--green);
+  transition: width 0.4s ease;
+}
+
+.oc-window.warn .oc-fill { background: #e0a94c; }
+.oc-window.danger .oc-fill { background: #ef5350; }
+
+.oc-percent {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 动态颜色: 用量少绿 / 中黄 / 多红 (percent = 已用量) */
+.oc-window.ok .oc-percent { color: var(--green); }
+.oc-window.warn .oc-percent { color: #e0a94c; }
+.oc-window.danger .oc-percent { color: #ef5350; }
+
+.oc-label {
+  font-size: 9px;
+  color: var(--faint);
+}
+
+.oc-reset {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* ── Token 用量: 三格 ── */
+.token-grid {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.token-cell {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tc-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.tc-big {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-sub {
+  font-size: 9px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* ── 缓存命中率: 独立绿色背景条 ── */
+.hit-bar {
+  margin-top: 8px;
+  background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 10px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hit-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.hit-big {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 按服务分类行 ── */
+.provider-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pr-name {
+  font-size: 11px;
+  color: var(--text);
+}
+
+.pr-stats {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 趋势 ── */
+#card-trend canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 6px;
+}
+
+/* ── 折叠态 ── */
+body.collapsed .content {
+  display: none;
+}
+body.collapsed .titlebar {
+  border-bottom: none;
+}
